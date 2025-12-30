@@ -128,6 +128,33 @@ async def get_segmentation_analysis():
         return result.replace({np.nan: None}).to_dict(orient="records")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/api/member-ledger")
+async def get_member_ledger():
+    try:
+        if not DATA_PATH.exists():
+            raise FileNotFoundError("Dataset missing")
+        
+        df = pd.read_csv(DATA_PATH)
+        # We limit or format the data specifically for the table view
+        members = []
+        # Sample names to make the UI look professional
+        names = ["James Smith", "Mary Johnson", "Robert Brown", "Jennifer Davis", 
+                 "Michael Miller", "Linda Wilson", "John Moore", "Susan Taylor"]
+        
+        for idx, row in df.iterrows():
+            members.append({
+                "id": f"MBR-{10000 + idx}",
+                "name": names[idx % len(names)],
+                "age": int(row.get('age', 0)),
+                "balance": float(row.get('balance', 0)),
+                "churn": int(row.get('churn', 0)),
+                "score": float(row.get('engagement_score', 0)), # Or model score
+                "cluster": CLUSTER_PERSONAS.get(int(row.get('cluster', 0)), "General")
+            })
+        return members
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # ----------------------------------------------------------------
 # SERVER START
