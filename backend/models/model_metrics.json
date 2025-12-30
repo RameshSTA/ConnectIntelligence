@@ -1,0 +1,366 @@
+{
+  "report": {
+    "accuracy": 0.8217,
+    "roc_auc": 0.8445,
+    "cv_roc_auc_mean": 0.8564,
+    "cv_roc_auc_std": 0.013,
+    "precision": 0.5489,
+    "recall": 0.6841,
+    "f1": 0.6091
+  },
+  "confusion_matrix": {
+    "tn": 1352,
+    "fp": 226,
+    "fn": 127,
+    "tp": 275
+  },
+  "feature_importance": [
+    {
+      "feature": "Mid-Age Segment (46\u201360)",
+      "importance": 0.1722,
+      "color": "#6366f1",
+      "desc": "Dominant risk factor \u2014 46-60 cohort shows peak churn likelihood."
+    },
+    {
+      "feature": "Product Volume",
+      "importance": 0.1345,
+      "color": "#6366f1",
+      "desc": "Critical churn threshold observed at 3+ products."
+    },
+    {
+      "feature": "Behavioural Cluster",
+      "importance": 0.1125,
+      "color": "#6366f1",
+      "desc": "K-Means persona cluster; behavioural archetype indicator."
+    },
+    {
+      "feature": "Engagement Score",
+      "importance": 0.0767,
+      "color": "#6366f1",
+      "desc": "Composite of active status \u00d7 product count; low score = disengagement."
+    },
+    {
+      "feature": "Age (Linear)",
+      "importance": 0.0686,
+      "color": "#6366f1",
+      "desc": "Base demographic risk signal; near-retirement members are most volatile."
+    },
+    {
+      "feature": "Active Member",
+      "importance": 0.0575,
+      "color": "#6366f1",
+      "desc": "Inactive digital members are 2\u00d7 more likely to churn."
+    },
+    {
+      "feature": "Germany (Country)",
+      "importance": 0.0484,
+      "color": "#6366f1",
+      "desc": "Regional variance in fund loyalty and competitive landscape."
+    },
+    {
+      "feature": "Senior Segment (61+)",
+      "importance": 0.0453,
+      "color": "#6366f1",
+      "desc": "Senior cohort (61+); approaching decumulation phase."
+    },
+    {
+      "feature": "Gender",
+      "importance": 0.0431,
+      "color": "#6366f1",
+      "desc": "Marginal demographic predictor within the super context."
+    },
+    {
+      "feature": "Zero Balance Flag",
+      "importance": 0.0424,
+      "color": "#6366f1",
+      "desc": "Zero-balance accounts represent dormant/at-risk members."
+    }
+  ],
+  "roc_curve": [
+    {
+      "fpr": 0.0,
+      "tpr": 0.0
+    },
+    {
+      "fpr": 0.0019,
+      "tpr": 0.1493
+    },
+    {
+      "fpr": 0.0038,
+      "tpr": 0.1891
+    },
+    {
+      "fpr": 0.0063,
+      "tpr": 0.209
+    },
+    {
+      "fpr": 0.0089,
+      "tpr": 0.2687
+    },
+    {
+      "fpr": 0.0114,
+      "tpr": 0.2786
+    },
+    {
+      "fpr": 0.0133,
+      "tpr": 0.301
+    },
+    {
+      "fpr": 0.0152,
+      "tpr": 0.3085
+    },
+    {
+      "fpr": 0.0177,
+      "tpr": 0.3408
+    },
+    {
+      "fpr": 0.0196,
+      "tpr": 0.3657
+    },
+    {
+      "fpr": 0.0215,
+      "tpr": 0.3881
+    },
+    {
+      "fpr": 0.0247,
+      "tpr": 0.408
+    },
+    {
+      "fpr": 0.0298,
+      "tpr": 0.4229
+    },
+    {
+      "fpr": 0.0349,
+      "tpr": 0.4403
+    },
+    {
+      "fpr": 0.0393,
+      "tpr": 0.4577
+    },
+    {
+      "fpr": 0.0431,
+      "tpr": 0.4801
+    },
+    {
+      "fpr": 0.0507,
+      "tpr": 0.4925
+    },
+    {
+      "fpr": 0.0558,
+      "tpr": 0.5124
+    },
+    {
+      "fpr": 0.0665,
+      "tpr": 0.5224
+    },
+    {
+      "fpr": 0.076,
+      "tpr": 0.5323
+    },
+    {
+      "fpr": 0.0798,
+      "tpr": 0.5398
+    },
+    {
+      "fpr": 0.0837,
+      "tpr": 0.5498
+    },
+    {
+      "fpr": 0.0868,
+      "tpr": 0.5597
+    },
+    {
+      "fpr": 0.0894,
+      "tpr": 0.5697
+    },
+    {
+      "fpr": 0.0932,
+      "tpr": 0.5846
+    },
+    {
+      "fpr": 0.0995,
+      "tpr": 0.592
+    },
+    {
+      "fpr": 0.1052,
+      "tpr": 0.602
+    },
+    {
+      "fpr": 0.1109,
+      "tpr": 0.6095
+    },
+    {
+      "fpr": 0.1147,
+      "tpr": 0.6244
+    },
+    {
+      "fpr": 0.1172,
+      "tpr": 0.6343
+    },
+    {
+      "fpr": 0.1236,
+      "tpr": 0.6443
+    },
+    {
+      "fpr": 0.1267,
+      "tpr": 0.6567
+    },
+    {
+      "fpr": 0.1337,
+      "tpr": 0.6642
+    },
+    {
+      "fpr": 0.1381,
+      "tpr": 0.6766
+    },
+    {
+      "fpr": 0.154,
+      "tpr": 0.6866
+    },
+    {
+      "fpr": 0.161,
+      "tpr": 0.694
+    },
+    {
+      "fpr": 0.1717,
+      "tpr": 0.704
+    },
+    {
+      "fpr": 0.1793,
+      "tpr": 0.7139
+    },
+    {
+      "fpr": 0.185,
+      "tpr": 0.7214
+    },
+    {
+      "fpr": 0.1926,
+      "tpr": 0.7289
+    },
+    {
+      "fpr": 0.2053,
+      "tpr": 0.7388
+    },
+    {
+      "fpr": 0.2262,
+      "tpr": 0.7488
+    },
+    {
+      "fpr": 0.2288,
+      "tpr": 0.7587
+    },
+    {
+      "fpr": 0.2364,
+      "tpr": 0.7687
+    },
+    {
+      "fpr": 0.2433,
+      "tpr": 0.7761
+    },
+    {
+      "fpr": 0.2649,
+      "tpr": 0.7861
+    },
+    {
+      "fpr": 0.2807,
+      "tpr": 0.7935
+    },
+    {
+      "fpr": 0.2877,
+      "tpr": 0.801
+    },
+    {
+      "fpr": 0.2953,
+      "tpr": 0.8109
+    },
+    {
+      "fpr": 0.3004,
+      "tpr": 0.8234
+    },
+    {
+      "fpr": 0.3181,
+      "tpr": 0.8333
+    },
+    {
+      "fpr": 0.3473,
+      "tpr": 0.8433
+    },
+    {
+      "fpr": 0.358,
+      "tpr": 0.8507
+    },
+    {
+      "fpr": 0.3657,
+      "tpr": 0.8582
+    },
+    {
+      "fpr": 0.3834,
+      "tpr": 0.8657
+    },
+    {
+      "fpr": 0.417,
+      "tpr": 0.8731
+    },
+    {
+      "fpr": 0.4493,
+      "tpr": 0.8831
+    },
+    {
+      "fpr": 0.4601,
+      "tpr": 0.893
+    },
+    {
+      "fpr": 0.4772,
+      "tpr": 0.9005
+    },
+    {
+      "fpr": 0.5203,
+      "tpr": 0.908
+    },
+    {
+      "fpr": 0.5463,
+      "tpr": 0.9154
+    },
+    {
+      "fpr": 0.5621,
+      "tpr": 0.9254
+    },
+    {
+      "fpr": 0.6052,
+      "tpr": 0.9353
+    },
+    {
+      "fpr": 0.6248,
+      "tpr": 0.9453
+    },
+    {
+      "fpr": 0.6546,
+      "tpr": 0.9527
+    },
+    {
+      "fpr": 0.7041,
+      "tpr": 0.9602
+    },
+    {
+      "fpr": 0.749,
+      "tpr": 0.9726
+    },
+    {
+      "fpr": 0.8042,
+      "tpr": 0.9826
+    },
+    {
+      "fpr": 0.9189,
+      "tpr": 0.99
+    },
+    {
+      "fpr": 0.9531,
+      "tpr": 0.9975
+    },
+    {
+      "fpr": 1.0,
+      "tpr": 1.0
+    }
+  ],
+  "sample_size": 1980
+}
