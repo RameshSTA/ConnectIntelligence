@@ -1,0 +1,13 @@
+project_name: "Superannuation_Retention_Platform"
+data:
+  raw_path: "data/raw/superannuation_dirty_dataset_20k.csv"
+  processed_path: "data/processed/cleaned_v1.csv"
+  
+modeling:
+  test_size: 0.2
+  random_state: 42
+  churn_target: "churn_flag"
+  
+business_logic:
+  retirement_age: 65
+  high_engagement_threshold: 0.7

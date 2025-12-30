@@ -1,0 +1,27 @@
+# --- Connect Intelligence: Core Inference Engine ---
+
+# API Framework & Server
+fastapi==0.128.0
+uvicorn==0.39.0
+pydantic==2.12.5
+python-dotenv==1.0.0
+
+# Data Processing
+pandas==2.1.0
+numpy==1.26.0
+scipy==1.11.2
+
+# Machine Learning Core
+# (Versions matched to your research notebooks to ensure model weight compatibility)
+scikit-learn==1.3.0
+xgboost==2.0.2
+imbalanced-learn==0.11.0
+joblib==1.5.3
+
+# Explainable AI (XAI)
+shap==0.42.1
+
+# Visualization Support (Backend Analytics)
+matplotlib==3.8.0
+seaborn==0.12.2
+plotly==5.16.1
