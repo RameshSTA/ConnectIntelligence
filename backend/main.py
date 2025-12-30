@@ -5,6 +5,7 @@ import numpy as np
 import joblib
 import os
 from pathlib import Path
+import uvicorn
 
 # --- NEW CRITICAL IMPORTS FOR SEGMENTATION ---
 from sklearn.preprocessing import StandardScaler
