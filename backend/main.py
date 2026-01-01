@@ -31,13 +31,22 @@ CLUSTER_PERSONAS = {
     4: "Pre-Retirees"
 }
 
-# 3. DEFINITIVE PATHS
-BASE_DIR = Path("/Users/ramesh/Desktop/RestConnect/backend")
-DATA_PATH = BASE_DIR / "data" / "processed" / "segmented_members_final.csv"
-MODEL_DIR = BASE_DIR / "models"
+# ----------------------------------------------------------------
+# 3. DYNAMIC PATH RESOLUTION (FIXED FOR RENDER)
+# ----------------------------------------------------------------
+# This finds the directory where main.py is actually running
+CURRENT_DIR = Path(__file__).resolve().parent
 
+# Logic to find the data file locally or on the server
+DATA_PATH = CURRENT_DIR / "data" / "processed" / "segmented_members_final.csv"
 if not DATA_PATH.exists():
-    DATA_PATH = Path("segmented_members_final.csv")
+    # Fallback for Render if files are in the root
+    DATA_PATH = CURRENT_DIR / "segmented_members_final.csv"
+
+# Logic to find models
+MODEL_DIR = CURRENT_DIR / "models"
+if not MODEL_DIR.exists():
+    MODEL_DIR = CURRENT_DIR # Fallback to root
 
 # ----------------------------------------------------------------
 # ENDPOINT 1: EXECUTIVE DASHBOARD DATA
@@ -80,9 +89,17 @@ async def get_members():
 @app.post("/api/predict")
 async def predict(data: dict):
     try:
-        model = joblib.load(MODEL_DIR / "churn_model_gb.pkl")
-        scaler = joblib.load(MODEL_DIR / "standard_scaler.pkl")
+        model_path = MODEL_DIR / "churn_model_gb.pkl"
+        scaler_path = MODEL_DIR / "standard_scaler.pkl"
+        
+        if not model_path.exists() or not scaler_path.exists():
+             raise FileNotFoundError("Model or Scaler artifacts missing in /models directory")
+
+        model = joblib.load(model_path)
+        scaler = joblib.load(scaler_path)
+        
         input_df = pd.DataFrame([data])
+        # Ensure we only use features the scaler expects
         input_df = input_df[scaler.feature_names_in_]
         X_scaled = scaler.transform(input_df)
         prob = model.predict_proba(X_scaled)[0][1]
@@ -144,7 +161,7 @@ async def get_data_audit():
         raise HTTPException(status_code=500, detail=str(e))
 
 # ----------------------------------------------------------------
-# ENDPOINT 4: SEGMENTATION (FIXED & OPTIMIZED)
+# ENDPOINT 4: SEGMENTATION
 # ----------------------------------------------------------------
 @app.get("/api/segmentation")
 async def get_segmentation_analysis():
@@ -153,56 +170,45 @@ async def get_segmentation_analysis():
             raise FileNotFoundError("Dataset path not found.")
         
         df = pd.read_csv(DATA_PATH)
-
-        # 1. Feature Preparation (Using columns exactly as named in your CSV)
         features = ['credit_score', 'age', 'balance', 'products_number', 'estimated_salary', 'engagement_score']
-        x = df[features].fillna(0)
         
-        # 2. Dimensionality Reduction (Tableau-style 2D projection)
+        # Filter for existing columns to avoid errors
+        available_features = [f for f in features if f in df.columns]
+        x = df[available_features].fillna(0)
+        
         x_scaled = StandardScaler().fit_transform(x)
         pca = PCA(n_components=2)
         components = pca.fit_transform(x_scaled)
 
-        # 3. Fast Payload Construction
         df['pcaX'] = components[:, 0]
         df['pcaY'] = components[:, 1]
         
-        # Convert numeric cluster to professional persona string
-        df['segment'] = df['cluster'].map(CLUSTER_PERSONAS).fillna("General Portfolio")
+        if 'cluster' in df.columns:
+            df['segment'] = df['cluster'].map(CLUSTER_PERSONAS).fillna("General Portfolio")
+        else:
+            df['segment'] = "General Portfolio"
 
-        # Select only necessary columns for the chart to keep the response light
         result = df[['pcaX', 'pcaY', 'segment', 'balance', 'age', 'churn', 'engagement_score']].copy()
         result.columns = ['pcaX', 'pcaY', 'segment', 'superBalance', 'age', 'churnProbability', 'appSessionsPerMonth']
 
         return result.replace({np.nan: None}).to_dict(orient="records")
-
     except Exception as e:
         print(f" Segmentation Error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-"""
-Updates:
-- ROC-AUC: 0.8530
-- Precision (Churn): 0.76 | Recall (Churn): 0.44
-- Accuracy: 0.86
-"""
 
+# ----------------------------------------------------------------
+# ENDPOINT 5: MODEL INSIGHTS
+# ----------------------------------------------------------------
 @app.get("/api/model-insights")
 async def get_model_insights():
     try:
-        # DATA SOURCE: Final Test Evaluation (N=1980)
-        # Stayers (0.0): 1578 | Churners (1.0): 402
-        
-        # 1. DERIVED CONFUSION MATRIX 
-        # Calculated from your provided metrics (Recall 0.44 of 402 = 177 True Positives)
         confusion_matrix = {
-            "tn": 1522, # Correct Stay Predictions (Specificity ~0.96)
-            "fp": 56,   # False Alarms (Low False Positive Rate)
-            "fn": 225,  # Missed Risk (Where we can improve)
-            "tp": 177   # Correct Churn Predictions
+            "tn": 1522, 
+            "fp": 56,   
+            "fn": 225,  
+            "tp": 177   
         }
 
-        # 2. HIGH-SIGNAL FEATURE IMPORTANCE (Reflecting the updated XGBoost drivers)
-        # Insights drawn from your 'Top 10 Drivers' visualization
         feature_importance = [
             {"feature": "Mid-Age Segment", "importance": 0.52, "color": "#008080", "desc": "Dominant risk factor identified in 46-60 cohort."},
             {"feature": "Engagement Score", "importance": 0.09, "color": "#008080", "desc": "Interaction between active status and product count."},
@@ -211,23 +217,24 @@ async def get_model_insights():
             {"feature": "Germany (Country)", "importance": 0.04, "color": "#008080", "desc": "Regional risk variance."}
         ]
 
-        # 3. UPDATED TEST METRICS
         return {
             "confusion_matrix": confusion_matrix,
             "feature_importance": feature_importance,
             "report": {
                 "accuracy": 0.86,
                 "roc_auc": 0.8530,
-                "precision": 0.76, # High precision: If we flag a member, they are likely to churn
-                "recall": 0.44,    # Targeted recall for high-certainty interventions
+                "precision": 0.76,
+                "recall": 0.44,
                 "f1": 0.55
             },
             "sample_size": 1980
         }
     except Exception as e:
-        print(f" Insight Error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+# ----------------------------------------------------------------
+# ENDPOINT 6: MEMBER LEDGER
+# ----------------------------------------------------------------
 @app.get("/api/member-ledger")
 async def get_member_ledger():
     try:
@@ -256,8 +263,7 @@ async def get_member_ledger():
     except Exception as e:
         print(f"LEDGER ERROR: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
-    # Render assigns a port via the PORT environment variable
     port = int(os.environ.get("PORT", 8000))
-    # Must use 0.0.0.0 to accept external requests on Render
     uvicorn.run(app, host="0.0.0.0", port=port)
