@@ -71,7 +71,7 @@ async def get_members():
             }
         }
     except Exception as e:
-        print(f"🔥 Dashboard Error: {str(e)}")
+        print(f" Dashboard Error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # ----------------------------------------------------------------
@@ -88,7 +88,7 @@ async def predict(data: dict):
         prob = model.predict_proba(X_scaled)[0][1]
         return {"score": float(prob)}
     except Exception as e:
-        print(f"🔥 Prediction Error: {str(e)}")
+        print(f" Prediction Error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
 
 # ----------------------------------------------------------------
@@ -177,52 +177,55 @@ async def get_segmentation_analysis():
         return result.replace({np.nan: None}).to_dict(orient="records")
 
     except Exception as e:
-        print(f"🔥 Segmentation Error: {str(e)}")
+        print(f" Segmentation Error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+"""
+Updates:
+- ROC-AUC: 0.8530
+- Precision (Churn): 0.76 | Recall (Churn): 0.44
+- Accuracy: 0.86
+"""
+
 @app.get("/api/model-insights")
 async def get_model_insights():
     try:
-        # DATA SOURCE: User-provided Classification Report (N=1980)
+        # DATA SOURCE: Final Test Evaluation (N=1980)
         # Stayers (0.0): 1578 | Churners (1.0): 402
-        # Precision: 0.59 | Recall: 0.63
         
-        # 1. DERIVED CONFUSION MATRIX (Calculated from your Precision/Recall)
+        # 1. DERIVED CONFUSION MATRIX 
+        # Calculated from your provided metrics (Recall 0.44 of 402 = 177 True Positives)
         confusion_matrix = {
-            "tn": 1404, # Correct Stay Predictions
-            "fp": 174,  # False Alarms
-            "fn": 149,  # Missed Risk
-            "tp": 253   # Correct Churn Predictions (Recall 0.63 of 402)
+            "tn": 1522, # Correct Stay Predictions (Specificity ~0.96)
+            "fp": 56,   # False Alarms (Low False Positive Rate)
+            "fn": 225,  # Missed Risk (Where we can improve)
+            "tp": 177   # Correct Churn Predictions
         }
 
-        # 2. STRATEGIC ROC CURVE (Reflecting your 0.84 AUC potential)
-        roc_data = [
-            {"fpr": 0.0, "tpr": 0.0}, {"fpr": 0.05, "tpr": 0.40}, 
-            {"fpr": 0.11, "tpr": 0.63}, {"fpr": 0.25, "tpr": 0.78},
-            {"fpr": 0.45, "tpr": 0.88}, {"fpr": 0.70, "tpr": 0.95},
-            {"fpr": 1.0, "tpr": 1.0}
-        ]
-
-        # 3. FEATURE IMPORTANCE (Gini Impurity from RF)
+        # 2. HIGH-SIGNAL FEATURE IMPORTANCE (Reflecting the updated XGBoost drivers)
+        # Insights drawn from your 'Top 10 Drivers' visualization
         feature_importance = [
-            {"feature": "Age", "importance": 0.24, "color": "#6366f1", "desc": "Strongest non-linear predictor."},
-            {"feature": "Balance", "importance": 0.18, "color": "#8b5cf6", "desc": "Account liquidity impact."},
-            {"feature": "Engagement", "importance": 0.15, "color": "#ec4899", "desc": "Digital activity score."},
-            {"feature": "Estimated Salary", "importance": 0.14, "color": "#10b981", "desc": "Economic loyalty factor."},
-            {"feature": "Tenure", "importance": 0.12, "color": "#f59e0b", "desc": "Account longevity signal."}
+            {"feature": "Mid-Age Segment", "importance": 0.52, "color": "#008080", "desc": "Dominant risk factor identified in 46-60 cohort."},
+            {"feature": "Engagement Score", "importance": 0.09, "color": "#008080", "desc": "Interaction between active status and product count."},
+            {"feature": "Product Volume", "importance": 0.08, "color": "#008080", "desc": "Critical churn threshold at 3+ products."},
+            {"feature": "Age (Linear)", "importance": 0.07, "color": "#008080", "desc": "Base demographic risk signal."},
+            {"feature": "Germany (Country)", "importance": 0.04, "color": "#008080", "desc": "Regional risk variance."}
         ]
 
+        # 3. UPDATED TEST METRICS
         return {
             "confusion_matrix": confusion_matrix,
-            "roc_curve": roc_data,
             "feature_importance": feature_importance,
             "report": {
-                "accuracy": 0.84,
-                "precision": 0.59,
-                "recall": 0.63,
-                "f1": 0.61
-            }
+                "accuracy": 0.86,
+                "roc_auc": 0.8530,
+                "precision": 0.76, # High precision: If we flag a member, they are likely to churn
+                "recall": 0.44,    # Targeted recall for high-certainty interventions
+                "f1": 0.55
+            },
+            "sample_size": 1980
         }
     except Exception as e:
+        print(f" Insight Error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
     
 @app.get("/api/member-ledger")
