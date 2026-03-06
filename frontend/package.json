@@ -1,7 +1,25 @@
 {
-  "name": "Connect",
+  "name": "connect-intelligence",
+  "version": "2.0.0",
+  "description": "Predictive member retention platform for Australian Superannuation — XGBoost churn prediction, PCA segmentation, and real-time risk inference.",
+  "author": "Ramesh Shrestha <ramesh@rameshsta.dev>",
+  "license": "MIT",
+  "homepage": "https://connect-intelligence.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RameshSTA/ConnectIntelligence.git"
+  },
+  "keywords": [
+    "machine-learning",
+    "xgboost",
+    "churn-prediction",
+    "superannuation",
+    "fastapi",
+    "react",
+    "data-science",
+    "portfolio"
+  ],
   "private": true,
-  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
