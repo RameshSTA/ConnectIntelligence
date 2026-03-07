@@ -32,6 +32,7 @@ import pandas as pd
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
@@ -49,14 +50,20 @@ app = FastAPI(
     version="2.0.0",
 )
 
-# Allow all origins so the Vercel frontend can reach the Render backend.
-# Tighten this to specific domains before handling genuinely sensitive PII.
+# Allow the Vercel frontend and local development to reach the Render backend.
+_ALLOWED_ORIGINS = [
+    "https://connect-intelligence.vercel.app",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=_ALLOWED_ORIGINS,
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
 )
 
 # ---------------------------------------------------------------------------
@@ -222,27 +229,77 @@ async def get_members() -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Pydantic model for /api/predict request validation
+# ---------------------------------------------------------------------------
+
+class MemberFeatures(BaseModel):
+    """Validated feature vector for XGBoost churn inference.
+
+    All 19 features mirror the ``FEATURE_COLS`` list in ``train_model.py``.
+    Field constraints enforce the same domain bounds as the training data.
+    """
+    credit_score:         int   = Field(..., ge=300,   le=850,  description="FICO-style credit score (300–850)")
+    age:                  int   = Field(..., ge=18,    le=100,  description="Member age in years")
+    tenure:               int   = Field(..., ge=0,     le=50,   description="Years with the fund")
+    balance:              float = Field(..., ge=0.0,            description="Super balance in AUD")
+    products_number:      int   = Field(..., ge=1,     le=4,   description="Number of products held (1–4)")
+    credit_card:          int   = Field(..., ge=0,     le=1,   description="Has credit card (0/1)")
+    active_member:        int   = Field(..., ge=0,     le=1,   description="Engaged with fund (0/1)")
+    estimated_salary:     float = Field(..., ge=0.0,            description="Annual salary in AUD")
+    gender:               int   = Field(..., ge=0,     le=1,   description="Gender encoded: Male=1, Female=0")
+    country_Germany:      int   = Field(..., ge=0,     le=1,   description="Country one-hot: Germany")
+    country_Spain:        int   = Field(..., ge=0,     le=1,   description="Country one-hot: Spain")
+    balance_salary_ratio: float = Field(..., ge=0.0,            description="balance / salary ratio")
+    is_zero_balance:      int   = Field(..., ge=0,     le=1,   description="Flag: balance == 0")
+    tenure_age_ratio:     float = Field(..., ge=0.0,            description="tenure / age ratio")
+    engagement_score:     float = Field(..., ge=0.0,   le=3.0, description="Composite engagement (0–3)")
+    grp_Adult:            int   = Field(..., ge=0,     le=1,   description="Age bin: 18–30")
+    grp_Mid_Age:          int   = Field(..., ge=0,     le=1,   description="Age bin: 31–60")
+    grp_Senior:           int   = Field(..., ge=0,     le=1,   description="Age bin: 61+")
+    cluster:              int   = Field(..., ge=0,     le=4,   description="K-Means persona cluster (0–4)")
+
+
+# Retention playbook keyed by risk tier
+_RETENTION_ACTIONS: dict[str, str] = {
+    "High Alert": (
+        "Initiate 'Priority Contact' protocol — assign to Senior Retention Lead "
+        "for bespoke fee negotiation and personalised investment review."
+    ),
+    "Elevated": (
+        "Deploy 'Engagement Nudge' sequence — trigger automated email with "
+        "personalised insurance benefits and product upgrade options."
+    ),
+    "Stable": (
+        "Enrol in standard nurture programme — quarterly newsletter with "
+        "performance highlights and contribution optimisation tips."
+    ),
+}
+
+
+# ---------------------------------------------------------------------------
 # Endpoint 2: /api/predict
 # ---------------------------------------------------------------------------
 
 @app.post("/api/predict")
-async def predict(data: dict) -> dict:
+async def predict(member: MemberFeatures) -> dict:
     """Run real-time churn inference using the deployed XGBoost model.
 
-    The request body must contain the full feature vector in the same shape
-    expected by the ``StandardScaler`` fitted during training (see
-    ``train_model.py``). The scaler's ``feature_names_in_`` attribute is used
-    to select and order columns, so sending extra keys is harmless.
+    Accepts a validated ``MemberFeatures`` payload. The ``StandardScaler``
+    fitted during training re-orders and scales the feature vector before
+    it is passed to the XGBoost classifier.
 
     Args:
-        data: Feature dictionary posted as JSON (all 19 model features).
+        member: Validated Pydantic model containing all 19 feature fields.
 
     Returns:
-        JSON with a single key ``score`` — the probability of churn (0–1).
+        JSON with keys:
+          - ``score``       — churn probability (0.0–1.0)
+          - ``risk_level``  — "High Alert" | "Elevated" | "Stable"
+          - ``next_action`` — segment-appropriate retention recommendation
 
     Raises:
-        HTTPException(400): If model artefacts are missing or the feature
-            vector cannot be transformed.
+        HTTPException(400): If model artefacts are missing or inference fails.
+        HTTPException(422): Automatically raised by FastAPI for invalid inputs.
     """
     try:
         model_path  = MODEL_DIR / "churn_model_gb.pkl"
@@ -257,12 +314,19 @@ async def predict(data: dict) -> dict:
         model  = joblib.load(model_path)
         scaler = joblib.load(scaler_path)
 
+        data     = member.model_dump()
         input_df = pd.DataFrame([data])
         input_df = input_df[scaler.feature_names_in_]   # reorder to match training
         X_scaled = scaler.transform(input_df)
-        prob     = model.predict_proba(X_scaled)[0][1]
+        prob     = float(model.predict_proba(X_scaled)[0][1])
 
-        return {"score": float(prob)}
+        risk_level = "High Alert" if prob > 0.7 else "Elevated" if prob > 0.4 else "Stable"
+
+        return {
+            "score":       prob,
+            "risk_level":  risk_level,
+            "next_action": _RETENTION_ACTIONS[risk_level],
+        }
     except Exception as exc:
         print(f"[/api/predict] Error: {exc}")
         raise HTTPException(status_code=400, detail=str(exc))

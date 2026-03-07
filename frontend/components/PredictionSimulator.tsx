@@ -64,11 +64,19 @@ interface Driver {
   note:  string;
 }
 
+/** Shape of the /api/predict JSON response. */
+interface ApiPredictResponse {
+  score:       number;
+  risk_level:  string;
+  next_action: string;
+}
+
 /** Aggregated result returned after inference. */
 interface PredictionResult {
   score:         number;
   revenueImpact: number;
   riskLevel:     string;
+  nextAction:    string;
   drivers:       Driver[];
 }
 
@@ -205,7 +213,13 @@ const PredictionSimulator: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify(payload),
       });
-      const json  = await res.json();
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
+        throw new Error(err.detail ?? `HTTP ${res.status}`);
+      }
+
+      const json = await res.json() as ApiPredictResponse;
       const score = typeof json.score === 'number' ? json.score : 0;
 
       // Local SHAP-style attribution — sign encodes direction of influence.
@@ -241,12 +255,13 @@ const PredictionSimulator: React.FC = () => {
       setPrediction({
         score,
         revenueImpact: Math.round(formData.balance * score),
-        riskLevel:     score > 0.7 ? 'High Alert' : score > 0.4 ? 'Elevated' : 'Stable',
+        riskLevel:     json.risk_level  ?? (score > 0.7 ? 'High Alert' : score > 0.4 ? 'Elevated' : 'Stable'),
+        nextAction:    json.next_action ?? '',
         drivers,
       });
     } catch (err) {
       console.error('Inference error:', err);
-      setPrediction({ score: 0, revenueImpact: 0, riskLevel: 'Server Offline', drivers: [] });
+      setPrediction({ score: 0, revenueImpact: 0, riskLevel: 'Server Offline', nextAction: 'Check backend connection and retry.', drivers: [] });
     } finally {
       setIsCalculating(false);
     }
@@ -536,7 +551,7 @@ const PredictionSimulator: React.FC = () => {
                     </p>
                   </div>
 
-                  {/* Recommended action */}
+                  {/* Recommended action — sourced from API */}
                   <div className="p-4 bg-indigo-600 rounded-lg text-white">
                     <div className="flex items-center gap-2 mb-2">
                       <Activity size={14} className="text-indigo-300" />
@@ -545,9 +560,7 @@ const PredictionSimulator: React.FC = () => {
                       </p>
                     </div>
                     <p className="text-sm font-medium leading-relaxed">
-                      {formData.balance > 100_000
-                        ? "Initiate 'Priority Contact' protocol — assign to Senior Retention Lead for bespoke fee negotiation."
-                        : "Deploy 'Engagement Nudge' sequence — trigger automated email with personalised insurance benefits."}
+                      {prediction.nextAction}
                     </p>
                   </div>
 

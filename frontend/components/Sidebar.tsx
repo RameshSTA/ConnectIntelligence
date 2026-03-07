@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { Network, GitMerge, Calculator, Database, PieChart, Activity, Users, X } from 'lucide-react';
+import { Network, LayoutDashboard, GitMerge, Calculator, Database, PieChart, Activity, Users, X } from 'lucide-react';
 
 /** Describes a single navigation item. */
 interface NavItem {
@@ -25,12 +25,13 @@ interface SidebarProps {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: 'ml-lifecycle', label: 'ML Pipeline',       icon: GitMerge,   desc: 'End-to-end model lifecycle'   },
-  { id: 'simulator',    label: 'Live Predictor',     icon: Calculator, desc: 'Real-time risk inference'     },
-  { id: 'data-quality', label: 'Data Audit',         icon: Database,   desc: 'Quality & integrity report'   },
-  { id: 'segmentation', label: 'Segmentation',       icon: PieChart,   desc: 'K-Means cluster analysis'     },
-  { id: 'insights',     label: 'Model Performance',  icon: Activity,   desc: 'Evaluation metrics & XAI'     },
-  { id: 'members',      label: 'Member Ledger',      icon: Users,      desc: 'Full member risk registry'    },
+  { id: 'overview',     label: 'Overview',           icon: LayoutDashboard, desc: 'Project summary & live KPIs'  },
+  { id: 'ml-lifecycle', label: 'ML Pipeline',         icon: GitMerge,        desc: 'End-to-end model lifecycle'   },
+  { id: 'simulator',    label: 'Live Predictor',      icon: Calculator,      desc: 'Real-time risk inference'     },
+  { id: 'data-quality', label: 'Data Audit',          icon: Database,        desc: 'Quality & integrity report'   },
+  { id: 'segmentation', label: 'Segmentation',        icon: PieChart,        desc: 'K-Means cluster analysis'     },
+  { id: 'insights',     label: 'Model Performance',   icon: Activity,        desc: 'Evaluation metrics & XAI'     },
+  { id: 'members',      label: 'Member Ledger',       icon: Users,           desc: 'Full member risk registry'    },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -69,7 +70,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     {/* ── Navigation links ──────────────────────────────────────────── */}
     <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
       <p className="px-3 mb-3 text-xs font-semibold text-slate-500 uppercase tracking-widest">
-        Analytics
+        Platform
       </p>
 
       {NAV_ITEMS.map(({ id, label, icon: Icon, desc }) => {

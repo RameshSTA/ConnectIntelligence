@@ -14,24 +14,26 @@
 
 import React, { useState, useEffect } from 'react';
 import Sidebar             from './components/Sidebar';
+import Overview            from './components/Overview';
 import Segmentation        from './components/Segmentation';
 import MemberExplorer      from './components/MemberExplorer';
 import FeatureImportance   from './components/FeatureImportance';
 import DataAudit           from './components/DataAudit';
 import MLPipeline          from './components/MLPipeline';
 import PredictionSimulator from './components/PredictionSimulator';
-import { Member }          from './types';
+import { Member, PortfolioMetrics } from './types';
 import { API_BASE }        from './config';
 import { Menu, Github, Linkedin, Cpu, RefreshCw, AlertTriangle } from 'lucide-react';
 
 const App: React.FC = () => {
-  const [activeTab,        setActiveTab]        = useState<string>('ml-lifecycle');
+  const [activeTab,        setActiveTab]        = useState<string>('overview');
   const [members,          setMembers]          = useState<Member[]>([]);
+  const [metrics,          setMetrics]          = useState<PortfolioMetrics | null>(null);
   const [appLoading,       setAppLoading]       = useState<boolean>(true);
   const [appError,         setAppError]         = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
-  // Fetch the primary member dataset shared by Segmentation & MemberExplorer
+  // Fetch the primary member dataset shared by Overview, Segmentation & MemberExplorer
   const fetchMembers = async () => {
     setAppLoading(true);
     setAppError(null);
@@ -40,6 +42,7 @@ const App: React.FC = () => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       setMembers(json.members ?? []);
+      setMetrics(json.metrics ?? null);
     } catch {
       setAppError(
         'Could not reach the inference server. It may be waking up — please wait 30 s and retry.'
@@ -136,6 +139,9 @@ const App: React.FC = () => {
 
         {/* Routed page content */}
         <div className="flex-1 p-6 md:p-8">
+          {activeTab === 'overview'     && (
+            <Overview metrics={metrics} onNavigate={handleTabChange} />
+          )}
           {activeTab === 'ml-lifecycle' && (
             <MLPipeline onLaunchPredictor={() => handleTabChange('simulator')} />
           )}

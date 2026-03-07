@@ -34,7 +34,8 @@ def sample_data():
         'gender': [0, 0],
         'grp_Adult': [1, 1],
         'grp_Mid_Age': [0, 0],
-        'grp_Senior': [0, 0]
+        'grp_Senior': [0, 0],
+        'cluster': [1, 2],
     })
 
 def test_model_loading():
