@@ -24,7 +24,56 @@
 </tr>
 </table>
 
-[Business Problem](#the-business-problem) &nbsp;·&nbsp; [Approach](#our-approach) &nbsp;·&nbsp; [Architecture](#system-architecture) &nbsp;·&nbsp; [Model](#model-performance) &nbsp;·&nbsp; [Features](#feature-importance) &nbsp;·&nbsp; [Pipeline](#ml-pipeline) &nbsp;·&nbsp; [API](#api-reference) &nbsp;·&nbsp; [Stack](#technology-stack) &nbsp;·&nbsp; [Quick Start](#quick-start)
+<table border="0" cellspacing="6" cellpadding="0">
+<tr>
+<td align="center">
+  <a href="#the-business-problem"><img src="https://img.shields.io/badge/01%20%C2%B7%20The%20Business%20Problem-4f46e5?style=for-the-badge&logoColor=white" alt="The Business Problem"/></a>
+</td>
+<td align="center">
+  <a href="#our-approach"><img src="https://img.shields.io/badge/02%20%C2%B7%20Our%20Approach-4f46e5?style=for-the-badge&logoColor=white" alt="Our Approach"/></a>
+</td>
+</tr>
+<tr>
+<td align="center">
+  <a href="#system-architecture"><img src="https://img.shields.io/badge/03%20%C2%B7%20System%20Architecture-0369a1?style=for-the-badge&logoColor=white" alt="System Architecture"/></a>
+</td>
+<td align="center">
+  <a href="#model-performance"><img src="https://img.shields.io/badge/04%20%C2%B7%20Model%20Performance-0369a1?style=for-the-badge&logoColor=white" alt="Model Performance"/></a>
+</td>
+</tr>
+<tr>
+<td align="center">
+  <a href="#feature-importance"><img src="https://img.shields.io/badge/05%20%C2%B7%20Feature%20Importance-0369a1?style=for-the-badge&logoColor=white" alt="Feature Importance"/></a>
+</td>
+<td align="center">
+  <a href="#ml-pipeline"><img src="https://img.shields.io/badge/06%20%C2%B7%20ML%20Pipeline-0369a1?style=for-the-badge&logoColor=white" alt="ML Pipeline"/></a>
+</td>
+</tr>
+<tr>
+<td align="center">
+  <a href="#api-reference"><img src="https://img.shields.io/badge/07%20%C2%B7%20API%20Reference-0284c7?style=for-the-badge&logoColor=white" alt="API Reference"/></a>
+</td>
+<td align="center">
+  <a href="#technology-stack"><img src="https://img.shields.io/badge/08%20%C2%B7%20Technology%20Stack-0284c7?style=for-the-badge&logoColor=white" alt="Technology Stack"/></a>
+</td>
+</tr>
+<tr>
+<td align="center">
+  <a href="#quick-start"><img src="https://img.shields.io/badge/09%20%C2%B7%20Quick%20Start-0284c7?style=for-the-badge&logoColor=white" alt="Quick Start"/></a>
+</td>
+<td align="center">
+  <a href="#dataset"><img src="https://img.shields.io/badge/10%20%C2%B7%20Dataset-0284c7?style=for-the-badge&logoColor=white" alt="Dataset"/></a>
+</td>
+</tr>
+<tr>
+<td align="center">
+  <a href="#project-structure"><img src="https://img.shields.io/badge/11%20%C2%B7%20Project%20Structure-0c4a6e?style=for-the-badge&logoColor=white" alt="Project Structure"/></a>
+</td>
+<td align="center">
+  <a href="#cicd-pipeline"><img src="https://img.shields.io/badge/12%20%C2%B7%20CI%2FCD%20Pipeline-0c4a6e?style=for-the-badge&logoColor=white" alt="CI/CD Pipeline"/></a>
+</td>
+</tr>
+</table>
 
 </div>
 
